@@ -114,6 +114,132 @@ generated = generate_cells(cell_types, model, n_genes=200)
 embeddings = embed_cells(csdata, model, n_genes=200)
 ```
 
+## API Reference
+
+### C2SData
+
+**Class for managing cell sentence data**
+
+```python
+# Create from AnnData
+csdata = C2SData.from_anndata(
+    adata,
+    delimiter=' ',                    # Gene separator (default: ' ')
+    random_state=42,                  # Random seed for tie-breaking
+    include_obs_columns=['cell_type'] # Metadata columns to preserve
+)
+
+# Access data
+sentences = csdata.get_sentences()    # List of cell sentences
+vocab = csdata.get_vocab()            # OrderedDict of gene names → counts
+metadata = csdata.metadata            # DataFrame with cell metadata
+
+# Properties
+len(csdata)                           # Number of cells
+str(csdata)                           # Human-readable summary
+```
+
+### C2SModel
+
+**Wrapper for the pythia-160m-c2s model**
+
+```python
+# Load model
+model = C2SModel(device='auto')  # 'auto', 'cuda', or 'cpu'
+
+# Single generation
+result = model.generate_from_prompt(
+    prompt="Predict the cell type: CD3D CD3E",
+    max_tokens=50,
+    temperature=1.0,
+    top_p=1.0,
+    do_sample=True
+)
+
+# Batch generation
+results = model.generate_batch(
+    prompts=["prompt1", "prompt2"],
+    max_tokens=50
+)
+
+# Single embedding
+embedding = model.embed_cell("CD3D CD3E CD8A")  # Returns np.ndarray
+
+# Batch embeddings
+embeddings = model.embed_batch(["cell1", "cell2"])  # Returns (n_cells, hidden_dim)
+```
+
+### High-Level Functions
+
+#### predict_cell_types()
+```python
+predictions = predict_cell_types(
+    csdata,                    # C2SData object
+    model,                     # C2SModel instance
+    n_genes=200,              # Number of top genes to use
+    organism='Homo sapiens',  # 'Homo sapiens' or 'Mus musculus'
+    batch_size=8,             # Batch size for inference
+    max_tokens=50             # Max tokens to generate
+)
+# Returns: List[str] of predicted cell types
+```
+
+#### generate_cells()
+```python
+generated = generate_cells(
+    cell_types=['T cell', 'B cell'],  # Cell types to generate
+    model,                             # C2SModel instance
+    n_genes=200,                      # Number of genes to generate
+    organism='Homo sapiens',
+    batch_size=8,
+    max_tokens=512
+)
+# Returns: List[str] of generated cell sentences
+```
+
+#### embed_cells()
+```python
+embeddings = embed_cells(
+    csdata,                    # C2SData object
+    model,                     # C2SModel instance
+    n_genes=200,              # Number of top genes to use
+    organism='Homo sapiens',
+    batch_size=8
+)
+# Returns: np.ndarray of shape (n_cells, embedding_dim)
+```
+
+### Prompt Formatting
+
+```python
+from c2s_mini.prompts import (
+    format_cell_type_prediction,
+    format_cell_generation,
+    truncate_sentence
+)
+
+# Format for cell type prediction
+prompt = format_cell_type_prediction(
+    cell_sentence="CD3D CD3E CD8A ...",
+    n_genes=100,
+    organism='Homo sapiens'
+)
+
+# Format for cell generation
+prompt = format_cell_generation(
+    cell_type='T cell',
+    n_genes=200,
+    organism='Homo sapiens'
+)
+
+# Truncate sentence
+truncated = truncate_sentence(
+    sentence="GENE1 GENE2 GENE3 ...",
+    n_genes=50,
+    delimiter=' '
+)
+```
+
 ## Examples
 
 See the `examples/` directory for Jupyter notebooks:
@@ -123,17 +249,19 @@ See the `examples/` directory for Jupyter notebooks:
 
 ## Implementation Status
 
-This is a **Phase 0** implementation. Upcoming phases:
+**Current Phase: 6 (Documentation & Examples)**
 
-- **Phase 1**: Core transformation utilities (`utils.py`)
-- **Phase 2**: Data wrapper class (`data.py`)
-- **Phase 3**: Model wrapper class (`model.py`)
-- **Phase 4**: Prompt formatting (`prompts.py`)
-- **Phase 5**: High-level task functions (`tasks.py`)
-- **Phase 6**: Example notebooks and documentation
-- **Phase 7**: Test suite
+Completed phases:
+- ✅ **Phase 0**: Project setup and structure
+- ✅ **Phase 1**: Core transformation utilities (`utils.py`)
+- ✅ **Phase 2**: Data wrapper class (`data.py`)
+- ✅ **Phase 3**: Model wrapper class (`model.py`)
+- ✅ **Phase 4**: Prompt formatting (`prompts.py`)
+- ✅ **Phase 5**: High-level task functions (`tasks.py`)
+- 🚧 **Phase 6**: Example notebooks and documentation
+- ⏳ **Phase 7**: Test suite
 
-See [CLAUDE.md](CLAUDE.md) for detailed implementation roadmap.
+All core functionality is implemented and ready to use! See [CLAUDE.md](CLAUDE.md) for detailed implementation roadmap.
 
 ## Requirements
 
