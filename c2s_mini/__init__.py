@@ -26,20 +26,21 @@ __version__ = "0.1.0"
 __author__ = "c2s-mini contributors"
 __license__ = "Apache-2.0"
 
-# Core components will be imported as they're implemented in later phases
+# Core components
 # Phase 1 (utils.py) - Complete
 # Phase 2 (data.py) - Complete
+# Phase 3 (model.py) - Complete
+# Phase 4 (prompts.py) - Complete
+# Phase 5 (tasks.py) - Complete
 
 from .data import C2SData
-
-# Phases 3-5 not yet implemented:
-# from .model import C2SModel
-# from .tasks import predict_cell_types, generate_cells, embed_cells
+from .model import C2SModel
+from .tasks import predict_cell_types, generate_cells, embed_cells
 
 __all__ = [
     "C2SData",
-    # "C2SModel",  # Phase 3
-    # "predict_cell_types",  # Phase 5
-    # "generate_cells",  # Phase 5
-    # "embed_cells",  # Phase 5
+    "C2SModel",
+    "predict_cell_types",
+    "generate_cells",
+    "embed_cells",
 ]
