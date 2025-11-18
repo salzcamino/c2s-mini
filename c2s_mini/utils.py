@@ -56,38 +56,6 @@ def generate_vocabulary(adata):
     return vocabulary
 
 
-def sort_transcript_counts(raw_data):
-    """
-    Sort transcript counts, yielding matrix of ranks.
-
-    For each cell (row), this function assigns ranks to genes based on their
-    expression values. The highest expressed gene gets rank 0, second highest
-    gets rank 1, and so on. Ties are broken randomly.
-
-    Args:
-        raw_data: Expression matrix (cells × genes). Can be sparse or dense.
-
-    Returns:
-        np.ndarray: Matrix of same shape as input, where each entry is the
-            rank of that gene in that cell.
-
-    Example:
-        >>> import numpy as np
-        >>> expr = np.array([[5, 2, 8], [1, 9, 3]])
-        >>> ranks = sort_transcript_counts(expr)
-        >>> print(ranks)  # [[2, 1, 0], [2, 0, 1]] (highest expr = rank 0)
-    """
-    rank_X = np.zeros(shape=raw_data.shape)
-    for i in range(raw_data.shape[0]):
-        cols = np.ravel(range(raw_data.shape[1]))
-        vals = np.ravel(raw_data[i, :])
-        cols, vals = shuffle(cols, vals)
-        ranks = cols[np.argsort(-vals, kind="stable")]
-        rank_X[i, ranks] = np.arange(len(ranks))
-
-    return rank_X
-
-
 def generate_sentences(adata, vocab, delimiter=' ', random_state=42):
     """
     Transform expression matrix to cell sentences.
